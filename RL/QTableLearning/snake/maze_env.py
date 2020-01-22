@@ -6,7 +6,7 @@ import numpy as np
 class Maze:
 	n_actions = 4
 
-	def __init__(self, _width = 5, _length = 3):
+	def __init__(self, _width = 4, _length = 3):
 		# flags
 		self.FREE_FLAG = 0
 		self.HEAD_FLAG = 1
@@ -164,7 +164,7 @@ class Maze:
 	def _all_filled(self):
 		for i in range(np.shape(self.field)[0]):
 			for j in range(np.shape(self.field)[1]):
-				if self.field[i, j] == self.FREE_FLAG:
+				if (self.field[i, j] == self.FREE_FLAG) or (self.field[i, j] == self.FOOD_FLAG):
 					return False
 		return True
 

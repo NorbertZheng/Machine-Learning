@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 class QLearningTable:
-	Q_TABLE_CSV = "./q_table.csv"
+	Q_TABLE_CSV = "./q_table"
 
 	def __init__(self, actions, learning_rate = 0.01, reward_decay = 0.9, e_greedy = 0.9):
 		self.actions = actions		# a list
@@ -59,7 +59,7 @@ class QLearningTable:
 		with open(QLearningTable.Q_TABLE_CSV, "wb") as f:
 			pickle.dump(self.q_table, f)
 		print(self.q_table)
-		time.sleep(1)
+		time.sleep(0.5)
 
 	def _nparray_to_str(self, observation):
 		state = ""

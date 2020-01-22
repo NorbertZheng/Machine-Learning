@@ -6,15 +6,15 @@ def main():
 	env = Maze()
 	RL = QLearningTable(actions = list(range(env.n_actions)))
 
-	for episode in range(10000):
+	for episode in range(100):
+		if episode % 200 == 0:
+			RL.save_q_table()
 		# initial observation
 		observation = env.reset()
 		counter = 0
 
 		while True:
 			# fresh env
-			if counter % 20 == 0:
-				RL.save_q_table()
 			env.render()
 			print("Round: " + str(counter))
 
@@ -32,14 +32,17 @@ def main():
 
 			# break while loop when end of this episode
 			if done:
-				RL.save_q_table()
+				# RL.save_q_table()
 				break
 			else:
-				# time.sleep(0.01)
+				time.sleep(1)
 				counter += 1
 
 		# end game
 		print("end game")
+
+	# save q_table
+	RL.save_q_table()
 
 if __name__ == '__main__':
 	main()
