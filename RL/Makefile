@@ -9,9 +9,9 @@ test:
 	cd ./QTableLearning && make test
 
 clean:
+	rm -rf ./__pycache__
 	cd ./ActorCritic && make clean
 	cd ./DeepQNetwork && make clean
 	cd ./PolicyGradient && make clean
 	cd ./QTableLearning && make clean
-	rm -rf ./__pycache__
 
