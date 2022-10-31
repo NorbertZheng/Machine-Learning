@@ -3,7 +3,7 @@
 all: test
 
 test:
-	echo "GCN: test"
+	python train.py
 
 clean:
 	rm -rf ./__pycache__
