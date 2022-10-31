@@ -1,0 +1,7 @@
+# file
+*.pkl
+*.pyc
+
+# dir
+/__pycache__
+
