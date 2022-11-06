@@ -23,9 +23,8 @@ if not os.path.exists(dir_images): os.makedirs(dir_images)
 mnist = tf.keras.datasets.mnist
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 x_train = x_train.reshape((x_train.shape[0], -1)).astype(np.float32)
-x_train /= np.max(x_train, axis=-1, keepdims=True)
 x_test = x_test.reshape((x_test.shape[0], -1)).astype(np.float32)
-x_test /= np.max(x_test, axis=-1, keepdims=True)
+x_train /= 255.; x_test /= 255.
 # Initialize params, and then instantiate VAE.
 params_inst = params.default_params
 vae_inst = models.VAE(params_inst)

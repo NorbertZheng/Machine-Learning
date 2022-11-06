@@ -33,7 +33,7 @@ default_params = {
     # The size of batch.
     "batch_size": 100,
     # The number of training epochs.
-    "n_epochs": 0,
+    "n_epochs": 75,
     # The period of log.
     "n_log": 5,
     # The number of samples used in reconstruction process.
