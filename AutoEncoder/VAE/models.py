@@ -222,13 +222,13 @@ class VAE(tf.keras.Model):
         # Note: Adding 1e-10 to avoid evaluation of log(0, 0).
         # reconstr_loss - (batch_size,)
         reconstr_loss = -tf.reduce_sum(
-            x * tf.math.log(1e-10 + x_reconstr) + (1. - x) * tf.math.log(1e-10 + 1. - x_reconstr), axis=1)
+            x * tf.math.log(1e-10 + x_reconstr) + (1. - x) * tf.math.log(1e-10 + 1. - x_reconstr), axis=-1)
         # 2.) The latent loss, which is defined as the Kullback Leibler divergence between the distribution in latent
         #     space induced by the encoder on the data and some prior. This acts as a kind of regularizer. This can
         #     be interpreted as the number of "nats" required transmitting the latent space distribution given the prior.
         # latent_loss - (batch_size,)
         latent_loss = -0.5 * tf.reduce_sum(
-            1 + z_log_sigma_sq - tf.square(z_mean) - tf.exp(z_log_sigma_sq), axis=1)
+            1 + z_log_sigma_sq - tf.square(z_mean) - tf.exp(z_log_sigma_sq), axis=-1)
         # Calculate the whole loss, averaging over batch.
         # loss - int
         loss = tf.reduce_mean(reconstr_loss + latent_loss)
