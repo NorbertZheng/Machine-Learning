@@ -7,6 +7,6 @@ In this lesson, we implement a simple dense autoencoder to reconstruct MNIST ima
 ## Run the demo
 
 ```bash
-python main.py
+python train.py
 ```
 

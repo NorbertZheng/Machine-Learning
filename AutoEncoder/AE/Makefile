@@ -3,9 +3,8 @@
 all: test
 
 test:
-	python main.py
+	python train.py
 
 clean:
 	rm -rf ./__pycache__
-	rm -rf ./images
 
