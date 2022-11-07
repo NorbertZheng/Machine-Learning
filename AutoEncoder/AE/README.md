@@ -12,7 +12,7 @@ python train.py
 
 ## Visualization
 ### Reconstruction
-Based on the trained model, we can sample test inputs and visualize how well the VAE can reconstruct those. In general the VAE does really well.
+Based on the trained model, we can sample test inputs and visualize how well the AE can reconstruct those. In general the AE does really well.
 
 ![](images/reconstruction.png)
 
