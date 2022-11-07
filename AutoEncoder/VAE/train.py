@@ -53,7 +53,7 @@ for epoch_idx in range(params_inst["n_epochs"]):
         loss += loss_i / (x_train.shape[0] // params_inst["batch_size"])
     # Display logs per n_log step.
     if epoch_idx % params_inst["n_log"] == 0:
-        print("Epoch: {:04d}\tLoss: {:.9f}".format(epoch_idx, loss))
+        print("Epoch: {:4d}\tLoss: {:.9f}".format(epoch_idx, loss))
 
 ## Reconstruction process.
 # Sample x from x_test.

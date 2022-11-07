@@ -17,9 +17,9 @@ __all__ = [
 # def AE class
 class AE(tf.keras.Model):
     """
-    Auto-Encoder (VAE) implemented using TensorFlow.
-    This implementation uses deterministic encoders and decoders
-    and realized by 1-layer Dense. The AE can be learned end-to-end.
+    Auto-Encoder (AE) implemented using TensorFlow.
+    This implementation uses deterministic encoders and decoders and realized
+    by multi-layer perceptrons. The AE can be learned end-to-end.
     """
 
     def __init__(self, params):
@@ -45,20 +45,28 @@ class AE(tf.keras.Model):
         self.weights_["recognition"] = dict()
         # Initialize weights of recognition network.
         self.weights_["recognition"]["weights"] = {
-            "out": tf.Variable(inits.xavier((self.params["n_x"], self.params["n_z"]))),
+            "h1": tf.Variable(inits.xavier((self.params["n_x"], self.params["n_hidden_recog_1"]))),
+            "h2": tf.Variable(inits.xavier((self.params["n_hidden_recog_1"], self.params["n_hidden_recog_2"]))),
+            "out": tf.Variable(inits.xavier((self.params["n_hidden_recog_2"], self.params["n_z"]))),
         }
         # Initialize biases of recognition network.
         self.weights_["recognition"]["biases"] = {
+            "h1": tf.Variable(tf.zeros((self.params["n_hidden_recog_1"],), dtype=tf.float32)),
+            "h2": tf.Variable(tf.zeros((self.params["n_hidden_recog_2"],), dtype=tf.float32)),
             "out": tf.Variable(tf.zeros((self.params["n_z"],), dtype=tf.float32)),
         }
         ## -- Generation network.
         self.weights_["generation"] = dict()
         # Initialize weights of generation network.
         self.weights_["generation"]["weights"] = {
-            "out": tf.Variable(inits.xavier((self.params["n_z"], self.params["n_x"]))),
+            "h1": tf.Variable(inits.xavier((self.params["n_z"], self.params["n_hidden_gener_1"]))),
+            "h2": tf.Variable(inits.xavier((self.params["n_hidden_gener_1"], self.params["n_hidden_gener_2"]))),
+            "out": tf.Variable(inits.xavier((self.params["n_hidden_gener_2"], self.params["n_x"]))),
         }
         # Initialize biases of generation network.
         self.weights_["generation"]["biases"] = {
+            "h1": tf.Variable(tf.zeros((self.params["n_hidden_gener_1"],), dtype=tf.float32)),
+            "h2": tf.Variable(tf.zeros((self.params["n_hidden_gener_2"],), dtype=tf.float32)),
             "out": tf.Variable(tf.zeros((self.params["n_x"],), dtype=tf.float32)),
         }
 
@@ -121,9 +129,19 @@ class AE(tf.keras.Model):
         :return z: (batch_size, n_z) - The corresponding latent state z.
         """
         # Forward recognition network.
+        # layer1 - (batch_size, n_hidden_recog_1)
+        layer1 = self.params["activation"](tf.add(
+            tf.matmul(x, self.weights_["recognition"]["weights"]["h1"]),
+            self.weights_["recognition"]["biases"]["h1"]
+        ))
+        # layer2 - (batch_size, n_hidden_recog_2)
+        layer2 = self.params["activation"](tf.add(
+            tf.matmul(layer1, self.weights_["recognition"]["weights"]["h2"]),
+            self.weights_["recognition"]["biases"]["h2"]
+        ))
         # z - (batch_size, n_z)
         z = self.params["activation"](tf.add(
-            tf.matmul(x, self.weights_["recognition"]["weights"]["out"]),
+            tf.matmul(layer2, self.weights_["recognition"]["weights"]["out"]),
             self.weights_["recognition"]["biases"]["out"]
         ))
         # Return the final z.
@@ -138,9 +156,19 @@ class AE(tf.keras.Model):
         :return x_reconstr: (batch_size, n_x) - The reconstructed x.
         """
         # Forward generation network.
+        # layer1 - (batch_size, n_hidden_gener_1)
+        layer1 = self.params["activation"](tf.add(
+            tf.matmul(z, self.weights_["generation"]["weights"]["h1"]),
+            self.weights_["generation"]["biases"]["h1"]
+        ))
+        # layer2 - (batch_size, n_hidden_gener_2)
+        layer2 = self.params["activation"](tf.add(
+            tf.matmul(layer1, self.weights_["generation"]["weights"]["h2"]),
+            self.weights_["generation"]["biases"]["h2"]
+        ))
         # x_reconstr - (batch_size, n_x)
         x_reconstr = self.params["activation"](tf.add(
-            tf.matmul(z, self.weights_["generation"]["weights"]["out"]),
+            tf.matmul(layer2, self.weights_["generation"]["weights"]["out"]),
             self.weights_["generation"]["biases"]["out"]
         ))
         # Return the final x_reconstr.
@@ -155,13 +183,9 @@ class AE(tf.keras.Model):
         :return loss: int - The whole loss, including reconstructed loss and latent loss.
         """
         # The loss is only composed of one term:
-        # 1.) The reconstruction loss (the negative log probability of the input under the reconstructed Bernoulli
-        #     distribution induced by the decoder in the data space). This can be interpreted as the number of "nats"
-        #     required for reconstructing the input when the activation in latent is given.
-        # Note: Adding 1e-10 to avoid evaluation of log(0, 0).
+        # 1.) The reconstruction loss (the mean square error between x and x_reconstr).
         # reconstr_loss - (batch_size,)
-        reconstr_loss = -tf.reduce_sum(
-            x * tf.math.log(1e-10 + x_reconstr) + (1. - x) * tf.math.log(1e-10 + 1. - x_reconstr), axis=1)
+        reconstr_loss = 0.5 * tf.reduce_sum(tf.square(x-x_reconstr), axis=-1)
         # Calculate the whole loss, averaging over batch.
         # loss - int
         loss = tf.reduce_mean(reconstr_loss)
