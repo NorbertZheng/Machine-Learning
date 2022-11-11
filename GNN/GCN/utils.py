@@ -59,12 +59,12 @@ def load_data(dataset_str):
 
     All objects above must be saved using python pickle module.
     """
-    names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
+    names = ["x", "y", "tx", "ty", "allx", "ally", "graph"]
     objects = []
     for i in range(len(names)):
-        with open("data/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
+        with open("data/ind.{}.{}".format(dataset_str, names[i]), "rb") as f:
             if sys.version_info > (3, 0):
-                objects.append(pkl.load(f, encoding='latin1'))
+                objects.append(pkl.load(f, encoding="latin1"))
             else:
                 objects.append(pkl.load(f))
 
@@ -72,7 +72,7 @@ def load_data(dataset_str):
     test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset_str))
     test_idx_range = np.sort(test_idx_reorder)
 
-    if dataset_str == 'citeseer':
+    if dataset_str == "citeseer":
         # Fix citeseer dataset (there are some isolated nodes in the graph)
         # Find isolated nodes, add them as zero-vecs into the right position
         test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
@@ -175,7 +175,7 @@ def chebyshev_polynomials(adj, k):
 
     adj_normalized = normalize_adj(adj)
     laplacian = sp.eye(adj.shape[0]) - adj_normalized
-    largest_eigval, _ = eigsh(laplacian, 1, which='LM')
+    largest_eigval, _ = eigsh(laplacian, 1, which="LM")
     scaled_laplacian = (2. / largest_eigval[0]) * laplacian - sp.eye(adj.shape[0])
 
     t_k = list()

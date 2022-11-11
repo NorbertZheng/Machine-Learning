@@ -6,7 +6,7 @@ Created on 15:17, Oct. 31st, 2022
 """
 import tensorflow as tf
 # local dep
-import config, layers, metrics
+import configs, layers, metrics
 
 __all__ = [
     "MLP",
@@ -31,7 +31,7 @@ class MLP(tf.keras.Model):
         self.input_dim = input_dim
         self.output_dim = placeholder["label"].get_shape().as_list()[1]
         self.placeholders = placeholders
-        self.optimizer = tf.train.AdamOptimizer(learning_rate=config.args.learning_rate)
+        self.optimizer = tf.train.AdamOptimizer(learning_rate=configs.args.learning_rate)
 
         # Initialize variables.
         self.build()
@@ -43,7 +43,7 @@ class MLP(tf.keras.Model):
         """
         # Calculate weight decay loss.
         for var in self.layers[0].vars.values():
-            self.loss += config.args.weight_decay * tf.nn.l2_loss(var)
+            self.loss += configs.args.weight_decay * tf.nn.l2_loss(var)
         # Calculate entropy error.
         self.loss += metrics.masked_softmax_cross_entropy(self.outputs,
             self.placeholders["labels"], self.placeholders["label_mask"])
@@ -61,9 +61,9 @@ class MLP(tf.keras.Model):
         """
         Build the variables of network.
         """
-        self.layers.append(layers.Dense(input_dim=input_dim, output_dim=config.args.hidden1,
+        self.layers.append(layers.Dense(input_dim=input_dim, output_dim=configs.args.hidden1,
             placeholders=self.placeholders, act=tf.nn.relu, dropout=True, sparse_inputs=True, logging=self.logging))
-        self.layers.append(layers.Dense(input_dim=config.args.hidden1, output_dim=self.output_dim,
+        self.layers.append(layers.Dense(input_dim=configs.args.hidden1, output_dim=self.output_dim,
             placeholders=self.placeholders, act=lambda x: x, dropout=True, logging=self.logging))
 
     # def predict func
@@ -92,11 +92,11 @@ class GCN(tf.keras.Model):
 
         # Initialize variables.
         self.layers_ = []
-        self.layers_.append(layers.GraphConvolution(input_dim=self.input_dim, output_dim=config.args.hidden1,
+        self.layers_.append(layers.GraphConvolution(input_dim=self.input_dim, output_dim=configs.args.hidden1,
             num_features_nonzero=num_features_nonzero, activation=tf.nn.relu,
-            dropout=config.args.dropout, is_sparse_inputs=True))
-        self.layers_.append(layers.GraphConvolution(input_dim=config.args.hidden1, output_dim=self.output_dim,
-            num_features_nonzero=num_features_nonzero, activation=lambda x: x, dropout=config.args.dropout))
+            dropout=configs.args.dropout, is_sparse_inputs=True))
+        self.layers_.append(layers.GraphConvolution(input_dim=configs.args.hidden1, output_dim=self.output_dim,
+            num_features_nonzero=num_features_nonzero, activation=lambda x: x, dropout=configs.args.dropout))
 
     # def call func
     def call(self, inputs, training=None):
@@ -114,7 +114,7 @@ class GCN(tf.keras.Model):
         # Calculate loss.
         loss = tf.zeros([])
         for var in self.layers_[0].trainable_variables:
-            loss += config.args.weight_decay * tf.nn.l2_loss(var)
+            loss += configs.args.weight_decay * tf.nn.l2_loss(var)
         loss += metrics.masked_softmax_cross_entropy(output, label, mask)
         acc = metrics.masked_accuracy(output, label, mask)
         # Return the final loss & acc.

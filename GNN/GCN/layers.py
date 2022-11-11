@@ -6,7 +6,7 @@ Created on 12:49, Oct. 31st, 2022
 """
 import tensorflow as tf
 # local dep
-import inits, config
+import inits
 
 __all__ = [
     "get_layer_uid",

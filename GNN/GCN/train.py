@@ -8,7 +8,7 @@ import os, time
 import numpy as np
 import tensorflow as tf
 # local dep
-import utils, config, models
+import utils, configs, models
 
 # Define training macro.
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -21,7 +21,8 @@ np.random.seed(seed)
 tf.random.set_seed(seed)
 
 # Load data.
-adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = utils.load_data(config.args.dataset)
+print(configs.args.dataset)
+adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = utils.load_data(configs.args.dataset)
 print("adj:", adj.shape)
 print("features:", features.shape)
 print("y:", y_train.shape, y_val.shape, y_test.shape)
@@ -34,21 +35,21 @@ print("features coordinates::", features[0].shape)
 print("features data::", features[1].shape)
 print("features shape::", features[2])
 
-if config.args.model == "gcn":
+if configs.args.model == "gcn":
     # D^-0.5 A D^-0.5
     support = [utils.preprocess_adj(adj)]
     num_supports = 1
     model_func = models.GCN
-elif config.args.model == "gcn_cheby":
-    support = utils.chebyshev_polynomials(adj, config.args.max_degree)
-    num_supports = 1 + config.args.max_degree
+elif configs.args.model == "gcn_cheby":
+    support = utils.chebyshev_polynomials(adj, configs.args.max_degree)
+    num_supports = 1 + configs.args.max_degree
     model_func = models.GCN
-elif config.args.model == "dense":
+elif configs.args.model == "dense":
     support = [utils.preprocess_adj(adj)]  # Not used
     num_supports = 1
     model_func = models.MLP
 else:
-    raise ValueError('Invalid argument for model: ' + str(config.args.model))
+    raise ValueError("Invalid argument for model: " + str(configs.args.model))
 
 # Create model.
 model = models.GCN(input_dim=features[2][1], output_dim=y_train.shape[1], num_features_nonzero=features[1].shape)
@@ -62,19 +63,19 @@ test_mask = tf.convert_to_tensor(test_mask)
 features = tf.SparseTensor(*features)
 support = [tf.cast(tf.SparseTensor(*support[0]), dtype=tf.float32)]
 num_features_nonzero = features.values.shape
-dropout = config.args.dropout
+dropout = configs.args.dropout
 
 optimizer = tf.keras.optimizers.Adam(lr=1e-2)
 
-for epoch in range(config.args.epochs):
+for epoch in range(configs.args.epochs):
     with tf.GradientTape() as tape:
         loss, acc = model((features, train_label, train_mask, support))
     grads = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
     _, val_acc = model((features, val_label, val_mask, support), training=False)
-    if epoch % 20 == 0: print(epoch, float(loss), float(acc), '\tval:', float(val_acc))
+    if epoch % 20 == 0: print(epoch, float(loss), float(acc), "\tval:", float(val_acc))
 
 test_loss, test_acc = model((features, test_label, test_mask, support), training=False)
-print('\ttest:', float(test_loss), float(test_acc))
+print("\ttest:", float(test_loss), float(test_acc))
 
