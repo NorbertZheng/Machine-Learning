@@ -212,7 +212,7 @@ class Critic:
         return K.Sequential([
             K.layers.Input((self.n_states,)),
             K.layers.Dense(32, activation="relu"),
-            K.layers.Dense(16, activation="relu"),
+            K.layers.Dense(32, activation="relu"),
             K.layers.Dense(16, activation="relu"),
             K.layers.Dense(1, activation="linear"),
         ])
@@ -355,7 +355,7 @@ class Agent:
             # Keep interacting with the environment until getting to the goal state.
             while not done:
                 # Render the environment.
-                self.env.render()
+                #self.env.render()
 
                 # Generate the probability over actions, then execute action.
                 action = self.actor.get_action(state).numpy()
