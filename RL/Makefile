@@ -8,6 +8,7 @@ test:
 	cd ./PolicyGradient && make test
 	cd ./QTableLearning && make test
 	cd ./A2C && make test
+	cd ./A3C && make test
 	cd ./MetaRL && make test
 
 clean:
@@ -17,6 +18,7 @@ clean:
 	cd ./PolicyGradient && make clean
 	cd ./QTableLearning && make clean
 	cd ./A2C && make clean
+	cd ./A3C && make clean
 	cd ./MetaRL && make clean
 	rm -rf ./__pycache__
 
